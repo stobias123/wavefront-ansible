@@ -3,8 +3,7 @@
   apt:
     name: "{{ wavefront_proxy_pkg }}"
     state: "{{ wavefront_pkg_state }}"
-  register: result
-  until: result|succeeded
+  become: yes
   tags:
    - install
    - debian

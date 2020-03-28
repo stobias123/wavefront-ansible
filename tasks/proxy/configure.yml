@@ -17,6 +17,10 @@
    - debian
    - configure
 
+- name: Debug os
+  debug:
+    msg: "{{ ansible_os_family }}"
+
 - include: "{{ ansible_os_family }}.yml"
   tags:
     - install

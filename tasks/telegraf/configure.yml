@@ -13,9 +13,11 @@
     - configure
 
 - name: Fail_Fast if collector agent's proxy port is not open
-  shell: "telnet {{ proxy_address }} {{ proxy_port }}"
-  register: telnet_result
-  failed_when: "'Connection refused' in telnet_result.stderr"
+  wait_for:
+    host:  "{{ proxy_address }}"
+    port: "{{ proxy_port }}"
+    timeout: 300
+  delegate_to: localhost
   tags:
     - install
     - check
@@ -37,6 +39,7 @@
     src: telegraf.conf.wfcopy.j2
     dest: "{{ telegraf_main_config }}"
     mode: 0644
+  become: yes
   notify: restart telegraf
   tags:
    - install
@@ -50,6 +53,7 @@
     src: 10-wavefront.conf.j2
     dest: "{{ telegraf_wavefront_output_plugin_config }}"
     mode: 0644
+  become: yes
   notify: restart telegraf
   tags:
    - install
@@ -65,6 +69,7 @@
     mode: 0644
     owner: root
     group: root
+  become: yes
   notify: restart telegraf
   tags:
    - install
@@ -79,6 +84,7 @@
     dest: "{{ telegraf_additional_config_dir }}/{{ item }}.conf"
     mode: 0644
   notify: restart telegraf
+  become: yes
   with_items: "{{ telegraf_inputs.keys() | default('undefined')  }}"
   when: telegraf_inputs is defined and telegraf_inputs is iterable
   ignore_errors: yes
@@ -93,6 +99,7 @@
   shell: 'find /etc/telegraf -type f -name "*.conf"|sort'
   register: telegraf_config_files
   ignore_errors: yes
+  become: yes
   tags:
    - install
    - redhat

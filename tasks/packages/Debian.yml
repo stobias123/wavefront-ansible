@@ -2,11 +2,12 @@
 - name: Install Wavefront pre-requisite packages (Ubuntu)
   apt:
     name: "{{ item }}"
-    state: installed
+    state: present
   with_items:
     - 'apt-transport-https'
     - 'python-pip'
     - 'facter'
+  become: yes
   tags:
    - prereqs
    - install
@@ -16,9 +17,10 @@
 
 - name: Add Wavefront apt repository key.
   apt_key:
-    url: url: "{{ wavefront_repo_gpgkey }}"
+    url: "{{ wavefront_repo_gpgkey }}"
     state: present
     validate_certs: no
+  become: yes
   when: wavefront_install_proxy == "true"
   tags:
    - prereqs
@@ -31,6 +33,7 @@
     repo: "deb {{ wavefront_proxy_pkg_url }}/ubuntu/ {{ ansible_distribution_release }} main"
     state: present
     update_cache: yes
+  become: yes
   when: wavefront_install_proxy == "true"
   tags:
    - prereqs
@@ -43,6 +46,7 @@
     repo: "deb {{ wavefront_telegraf_pkg_url }}/ubuntu/ {{ ansible_distribution_release }} main"
     state: present
     update_cache: yes
+  become: yes
   when: wavefront_collector == "telegraf" and wavefront_install_collector == "true"
   tags:
    - prereqs
